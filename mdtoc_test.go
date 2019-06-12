@@ -44,6 +44,11 @@ var testcases = []testcase{{
 }, {
 	file:         testdata("invalid_endbeforestart.md"),
 	validTOCTags: false,
+}, {
+	file:          "README.md",
+	includePrefix: false,
+	completeTOC:   true,
+	validTOCTags:  true,
 }}
 
 func testdata(subpath string) string {
@@ -103,9 +108,9 @@ func TestInplace(t *testing.T) {
 			require.NoError(t, err, test.file)
 
 			if test.completeTOC || !test.validTOCTags { // Invalid tags should not modify contents.
-				assert.Equal(t, original, updated, test.file)
+				assert.Equal(t, string(original), string(updated), test.file)
 			} else {
-				assert.NotEqual(t, original, updated, test.file)
+				assert.NotEqual(t, string(original), string(updated), test.file)
 			}
 		})
 	}
