@@ -33,12 +33,12 @@ var defaultOptions options
 func init() {
 	flag.BoolVar(&defaultOptions.dryrun, "dryrun", false, "Whether to check for changes to TOC, rather than overwriting. Requires --inplace flag.")
 	flag.BoolVar(&defaultOptions.inplace, "inplace", false, "Whether to edit the file in-place, or output to STDOUT. Requires toc tags to be present.")
-	flag.BoolVar(&defaultOptions.skipPrefix, "skip-prefix", false, "Whether to ignore any headers before the opening toc tag.")
+	flag.BoolVar(&defaultOptions.skipPrefix, "skip-prefix", true, "Whether to ignore any headers before the opening toc tag.")
 
 	flag.Usage = func() {
 		fmt.Fprintf(flag.CommandLine.Output(), "Usage: %s [OPTIONS] [FILE]...\n", os.Args[0])
 		fmt.Fprintf(flag.CommandLine.Output(), "Generate a table of contents for a markdown file (github flavor).\n")
-		fmt.Fprintf(flag.CommandLine.Output(), "TOC is wrapped in a pair of tags to allow in-place updates: <!-- toc --><!-- /toc -->\n")
+		fmt.Fprintf(flag.CommandLine.Output(), "TOC may be wrapped in a pair of tags to allow in-place updates: <!-- toc --><!-- /toc -->\n")
 		flag.PrintDefaults()
 	}
 }
@@ -88,10 +88,9 @@ func run(file string, opts options) (string, error) {
 		return "", fmt.Errorf("unable to read %s: %v", file, err)
 	}
 
-	var start, end int
+	start := bytes.Index(raw, []byte(startTOC))
+	end := bytes.Index(raw, []byte(endTOC))
 	if tocTagRequired(opts) {
-		start = bytes.Index(raw, []byte(startTOC))
-		end = bytes.Index(raw, []byte(endTOC))
 		if start == -1 {
 			return "", fmt.Errorf("missing opening TOC tag")
 		}
@@ -104,8 +103,9 @@ func run(file string, opts options) (string, error) {
 	}
 
 	var prefix, doc []byte
-	if opts.skipPrefix {
-		prefix = raw[:end]
+	// skipPrefix is only used when toc tags are present.
+	if opts.skipPrefix && start != -1 && end != -1 {
+		prefix = raw[:start]
 		doc = raw[end:]
 	} else {
 		doc = raw
@@ -197,7 +197,7 @@ func generateTOC(prefix []byte, doc []byte) (string, error) {
 }
 
 func tocTagRequired(opts options) bool {
-	return opts.skipPrefix || opts.inplace
+	return opts.inplace
 }
 
 type headingFn func(heading *ast.Heading)
