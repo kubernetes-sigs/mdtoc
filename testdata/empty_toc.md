@@ -5,7 +5,6 @@ description: we should ignore it
 
 # TOC
 
-<!-- toc -->
-<!-- /toc -->
+<!-- toc --><!-- /toc -->
 
 # Only Heading

@@ -135,9 +135,9 @@ func run(file string, opts options) (string, error) {
 		return toc, err
 	}
 
-	realStart := start + len(startTOC) + len("\n")
+	realStart := start + len(startTOC)
 	oldTOC := string(raw[realStart:end])
-	if oldTOC == toc {
+	if strings.TrimSpace(oldTOC) == strings.TrimSpace(toc) {
 		// No changes required.
 		return toc, nil
 	} else if opts.dryrun {
