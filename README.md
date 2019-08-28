@@ -50,4 +50,17 @@ For example, with `--skip-prefix=false` the TOC for this file becomes:
 
 ## Installation
 
-``` go get github.com/tallclair/mdtoc ```
+On linux, simply download and run the [standalone release
+binary](https://github.com/tallclair/mdtoc/releases)
+
+```sh
+# Optional: Verify the file integrity - check the release notes for the expected value.
+$ sha256sum $BINARY
+$ chmod +x $BINARY
+```
+
+Or, if you have a go development environment set up:
+
+```
+go get github.com/tallclair/mdtoc
+```
