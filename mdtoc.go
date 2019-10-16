@@ -104,8 +104,8 @@ func run(file string, opts options) (string, error) {
 		return "", fmt.Errorf("unable to read %s: %v", file, err)
 	}
 
-	start := bytes.Index(raw, []byte(startTOC))
-	end := bytes.Index(raw, []byte(endTOC))
+	start, end := findTOCTags(raw)
+
 	if tocTagRequired(opts) {
 		if start == -1 {
 			return "", fmt.Errorf("missing opening TOC tag")
@@ -145,8 +145,7 @@ func run(file string, opts options) (string, error) {
 	}
 
 	err = atomicWrite(file,
-		string(raw[:start]),
-		startTOC+"\n",
+		string(raw[:realStart])+"\n",
 		string(toc),
 		string(raw[end:]),
 	)
@@ -214,6 +213,26 @@ func generateTOC(prefix []byte, doc []byte) (string, error) {
 
 func tocTagRequired(opts options) bool {
 	return opts.inplace
+}
+
+var (
+	startTOCRegex = regexp.MustCompile("(?i)" + startTOC)
+	endTOCRegex   = regexp.MustCompile("(?i)" + endTOC)
+)
+
+// Locate the case-insensitive TOC tags.
+func findTOCTags(raw []byte) (start, end int) {
+	if ind := startTOCRegex.FindIndex(raw); len(ind) > 0 {
+		start = ind[0]
+	} else {
+		start = -1
+	}
+	if ind := endTOCRegex.FindIndex(raw); len(ind) > 0 {
+		end = ind[0]
+	} else {
+		end = -1
+	}
+	return
 }
 
 type headingFn func(heading *ast.Heading)

@@ -47,6 +47,11 @@ var testcases = []testcase{{
 	validTOCTags:  true,
 	expectedTOC:   "- [Only Heading](#only-heading)\n",
 }, {
+	file:          testdata("capital_toc.md"),
+	includePrefix: false,
+	completeTOC:   true,
+	validTOCTags:  true,
+}, {
 	file:          testdata("include_prefix.md"),
 	includePrefix: true,
 	completeTOC:   true,
