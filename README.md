@@ -12,6 +12,8 @@ Generated with `mdtoc --inplace README.md`
 <!-- toc -->
 - [Usage](#usage)
 - [Installation](#installation)
+- [Community, discussion, contribution, and support](#community-discussion-contribution-and-support)
+  - [Code of conduct](#code-of-conduct)
 <!-- /toc -->
 
 ## Usage
