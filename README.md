@@ -53,7 +53,7 @@ For example, with `--skip-prefix=false` the TOC for this file becomes:
 ## Installation
 
 On linux, simply download and run the [standalone release
-binary](https://github.com/tallclair/mdtoc/releases)
+binary](https://github.com/kubernetes-sigs/mdtoc/releases)
 
 ```sh
 # Optional: Verify the file integrity - check the release notes for the expected value.
@@ -64,7 +64,7 @@ $ chmod +x $BINARY
 Or, if you have a go development environment set up:
 
 ```
-go get github.com/tallclair/mdtoc
+go get sigs.k8s.io/mdtoc
 ```
 
 ## Community, discussion, contribution, and support
