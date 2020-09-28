@@ -25,6 +25,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"sigs.k8s.io/mdtoc/pkg/mdtoc"
 )
 
 type testcase struct {
@@ -79,14 +80,16 @@ func testdata(subpath string) string {
 func TestDryRun(t *testing.T) {
 	for _, test := range testcases {
 		t.Run(test.file, func(t *testing.T) {
-			opts := options{
-				dryrun:     true,
-				inplace:    true,
-				skipPrefix: !test.includePrefix,
+			opts := utilityOptions{
+				Options: mdtoc.Options{
+					Dryrun:     true,
+					SkipPrefix: !test.includePrefix,
+				},
+				Inplace: true,
 			}
 			assert.NoError(t, validateArgs(opts, []string{test.file}), test.file)
 
-			_, err := run(test.file, opts)
+			err := mdtoc.WriteTOC(test.file, opts.Options)
 
 			if test.completeTOC {
 				assert.NoError(t, err, test.file)
@@ -112,13 +115,15 @@ func TestInplace(t *testing.T) {
 			require.NoError(t, err, test.file)
 			require.NoError(t, tmpFile.Close(), test.file)
 
-			opts := options{
-				inplace:    true,
-				skipPrefix: !test.includePrefix,
+			opts := utilityOptions{
+				Options: mdtoc.Options{
+					SkipPrefix: !test.includePrefix,
+					Dryrun:     false,
+				},
 			}
 			assert.NoError(t, validateArgs(opts, []string{tmpFile.Name()}), test.file)
 
-			_, err = run(tmpFile.Name(), opts)
+			err = mdtoc.WriteTOC(tmpFile.Name(), opts.Options)
 			if test.validTOCTags {
 				require.NoError(t, err, test.file)
 			} else {
@@ -145,14 +150,15 @@ func TestOutput(t *testing.T) {
 		}
 
 		t.Run(test.file, func(t *testing.T) {
-			opts := options{
-				dryrun:     false,
-				inplace:    false,
-				skipPrefix: !test.includePrefix,
+			opts := utilityOptions{
+				Options: mdtoc.Options{
+					Dryrun:     false,
+					SkipPrefix: !test.includePrefix,
+				},
 			}
 			assert.NoError(t, validateArgs(opts, []string{test.file}), test.file)
 
-			toc, err := run(test.file, opts)
+			toc, err := mdtoc.GetTOC(test.file, opts.Options)
 			assert.NoError(t, err, test.file)
 
 			if test.expectedTOC != "" {
