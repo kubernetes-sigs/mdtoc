@@ -17,39 +17,25 @@ limitations under the License.
 package main
 
 import (
-	"bytes"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"math"
 	"os"
-	"regexp"
-	"strings"
 
-	"github.com/gomarkdown/markdown/ast"
-	"github.com/gomarkdown/markdown/html"
-	"github.com/gomarkdown/markdown/parser"
-	"github.com/mmarkdown/mmark/mparser"
+	"sigs.k8s.io/mdtoc/pkg/mdtoc"
 )
 
-const (
-	startTOC = "<!-- toc -->"
-	endTOC   = "<!-- /toc -->"
-)
-
-type options struct {
-	dryrun     bool
-	inplace    bool
-	skipPrefix bool
+type utilityOptions struct {
+	mdtoc.Options
+	Inplace bool
 }
 
-var defaultOptions options
+var defaultOptions utilityOptions
 
 func init() {
-	flag.BoolVar(&defaultOptions.dryrun, "dryrun", false, "Whether to check for changes to TOC, rather than overwriting. Requires --inplace flag.")
-	flag.BoolVar(&defaultOptions.inplace, "inplace", false, "Whether to edit the file in-place, or output to STDOUT. Requires toc tags to be present.")
-	flag.BoolVar(&defaultOptions.skipPrefix, "skip-prefix", true, "Whether to ignore any headers before the opening toc tag.")
+	flag.BoolVar(&defaultOptions.Dryrun, "dryrun", false, "Whether to check for changes to TOC, rather than overwriting. Requires --inplace flag.")
+	flag.BoolVar(&defaultOptions.Inplace, "inplace", false, "Whether to edit the file in-place, or output to STDOUT. Requires toc tags to be present.")
+	flag.BoolVar(&defaultOptions.SkipPrefix, "skip-prefix", true, "Whether to ignore any headers before the opening toc tag.")
 
 	flag.Usage = func() {
 		fmt.Fprintf(flag.CommandLine.Output(), "Usage: %s [OPTIONS] [FILE]...\n", os.Args[0])
@@ -67,254 +53,37 @@ func main() {
 		os.Exit(1)
 	}
 
-	hadError := false
-	for _, file := range flag.Args() {
-		toc, err := run(file, defaultOptions)
-		if err != nil {
-			log.Printf("%s: %v", file, err)
-			hadError = true
-		} else if !defaultOptions.inplace {
-			fmt.Println(toc)
+	switch defaultOptions.Inplace {
+	case true:
+		hadError := false
+		for _, file := range flag.Args() {
+			err := mdtoc.WriteTOC(file, defaultOptions.Options)
+			if err != nil {
+				log.Printf("%s: %v", file, err)
+				hadError = true
+			}
 		}
-	}
-
-	if hadError {
-		os.Exit(1)
+		if hadError {
+			os.Exit(1)
+		}
+	case false:
+		toc, err := mdtoc.GetTOC(flag.Args()[0], defaultOptions.Options)
+		if err != nil {
+			os.Exit(1)
+		}
+		fmt.Println(toc)
 	}
 }
 
-func validateArgs(opts options, args []string) error {
+func validateArgs(opts utilityOptions, args []string) error {
 	if len(args) < 1 {
 		return fmt.Errorf("must specify at least 1 file")
 	}
-	if !opts.inplace && len(args) > 1 {
+	if !opts.Inplace && len(args) > 1 {
 		return fmt.Errorf("non-inplace updates require exactly 1 file")
 	}
-	if opts.dryrun && !opts.inplace {
+	if opts.Dryrun && !opts.Inplace {
 		return fmt.Errorf("--dryrun requires --inplace")
 	}
 	return nil
-}
-
-// run the TOC generator on file with options.
-// Returns the generated toc, and any error.
-func run(file string, opts options) (string, error) {
-	raw, err := ioutil.ReadFile(file)
-	if err != nil {
-		return "", fmt.Errorf("unable to read %s: %v", file, err)
-	}
-
-	start, end := findTOCTags(raw)
-
-	if tocTagRequired(opts) {
-		if start == -1 {
-			return "", fmt.Errorf("missing opening TOC tag")
-		}
-		if end == -1 {
-			return "", fmt.Errorf("missing closing TOC tag")
-		}
-		if end < start {
-			return "", fmt.Errorf("TOC closing tag before start tag")
-		}
-	}
-
-	var prefix, doc []byte
-	// skipPrefix is only used when toc tags are present.
-	if opts.skipPrefix && start != -1 && end != -1 {
-		prefix = raw[:start]
-		doc = raw[end:]
-	} else {
-		doc = raw
-	}
-	toc, err := generateTOC(prefix, doc)
-	if err != nil {
-		return toc, fmt.Errorf("failed to generate toc: %v", err)
-	}
-
-	if !opts.inplace {
-		return toc, err
-	}
-
-	realStart := start + len(startTOC)
-	oldTOC := string(raw[realStart:end])
-	if strings.TrimSpace(oldTOC) == strings.TrimSpace(toc) {
-		// No changes required.
-		return toc, nil
-	} else if opts.dryrun {
-		return toc, fmt.Errorf("changes found:\n%s", toc)
-	}
-
-	err = atomicWrite(file,
-		string(raw[:realStart])+"\n",
-		string(toc),
-		string(raw[end:]),
-	)
-	return toc, err
-}
-
-// atomicWrite writes the chunks sequentially to the filePath.
-// A temporary file is used so no changes are made to the original in the case of an error.
-func atomicWrite(filePath string, chunks ...string) error {
-	tmpPath := filePath + "_tmp"
-	tmp, err := os.OpenFile(tmpPath, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0600)
-	if err != nil {
-		return fmt.Errorf("unable to open tepmorary file %s: %v", tmpPath, err)
-	}
-
-	// Cleanup
-	defer func() {
-		tmp.Close()
-		os.Remove(tmpPath)
-	}()
-
-	for _, chunk := range chunks {
-		if _, err := tmp.WriteString(chunk); err != nil {
-			return err
-		}
-	}
-
-	if err := tmp.Close(); err != nil {
-		return err
-	}
-	return os.Rename(tmp.Name(), filePath)
-}
-
-// parse parses a raw markdown document to an AST.
-func parse(b []byte) ast.Node {
-	p := parser.NewWithExtensions(parser.CommonExtensions)
-	p.Opts = parser.Options{
-		// mparser is required for parsing the --- title blocks
-		ParserHook: mparser.Hook,
-	}
-	return p.Parse(b)
-}
-
-func generateTOC(prefix []byte, doc []byte) (string, error) {
-	prefixMd := parse(prefix)
-	anchors := make(anchorGen)
-	// Start counting anchors from the beginning of the doc.
-	walkHeadings(prefixMd, func(heading *ast.Heading) {
-		anchors.mkAnchor(asText(heading))
-	})
-
-	md := parse(doc)
-
-	baseLvl := headingBase(md)
-	toc := &bytes.Buffer{}
-	htmlRenderer := html.NewRenderer(html.RendererOptions{})
-	walkHeadings(md, func(heading *ast.Heading) {
-		anchor := anchors.mkAnchor(asText(heading))
-		content := headingBody(htmlRenderer, heading)
-		fmt.Fprintf(toc, "%s- [%s](#%s)\n", strings.Repeat("  ", heading.Level-baseLvl), content, anchor)
-	})
-
-	return string(toc.Bytes()), nil
-}
-
-func tocTagRequired(opts options) bool {
-	return opts.inplace
-}
-
-var (
-	startTOCRegex = regexp.MustCompile("(?i)" + startTOC)
-	endTOCRegex   = regexp.MustCompile("(?i)" + endTOC)
-)
-
-// Locate the case-insensitive TOC tags.
-func findTOCTags(raw []byte) (start, end int) {
-	if ind := startTOCRegex.FindIndex(raw); len(ind) > 0 {
-		start = ind[0]
-	} else {
-		start = -1
-	}
-	if ind := endTOCRegex.FindIndex(raw); len(ind) > 0 {
-		end = ind[0]
-	} else {
-		end = -1
-	}
-	return
-}
-
-type headingFn func(heading *ast.Heading)
-
-// walkHeadings runs the heading function on each heading in the parsed markdown document.
-func walkHeadings(doc ast.Node, headingFn headingFn) error {
-	var err error
-	ast.WalkFunc(doc, func(node ast.Node, entering bool) ast.WalkStatus {
-		if !entering {
-			return ast.GoToNext // Don't care about closing the heading section.
-		}
-
-		heading, ok := node.(*ast.Heading)
-		if !ok {
-			return ast.GoToNext // Ignore non-heading nodes.
-		}
-
-		if heading.IsTitleblock {
-			return ast.GoToNext // Ignore title blocks (the --- section)
-		}
-
-		headingFn(heading)
-
-		return ast.GoToNext
-	})
-	return err
-}
-
-func asText(node ast.Node) string {
-	var text string
-	ast.WalkFunc(node, func(node ast.Node, entering bool) ast.WalkStatus {
-		if !entering {
-			return ast.GoToNext // Don't care about closing the heading section.
-		}
-		t, ok := node.(*ast.Text)
-		if !ok {
-			return ast.GoToNext // Ignore non-text nodes.
-		}
-
-		text += string(t.AsLeaf().Literal)
-		return ast.GoToNext
-	})
-	return text
-}
-
-// Renders the heading body as HTML
-func headingBody(renderer *html.Renderer, heading *ast.Heading) string {
-	var buf bytes.Buffer
-	for _, child := range heading.Children {
-		ast.WalkFunc(child, func(node ast.Node, entering bool) ast.WalkStatus {
-			return renderer.RenderNode(&buf, node, entering)
-		})
-	}
-	return strings.TrimSpace(buf.String())
-}
-
-// headingBase finds the minimum heading level. This is useful for normalizing indentation, such as
-// when a top-level heading is skipped in the prefix.
-func headingBase(doc ast.Node) int {
-	baseLvl := math.MaxInt32
-	walkHeadings(doc, func(heading *ast.Heading) {
-		if baseLvl > heading.Level {
-			baseLvl = heading.Level
-		}
-	})
-	return baseLvl
-}
-
-// Match punctuation that is filtered out from anchor IDs.
-var punctuation = regexp.MustCompile(`[^\w\- ]`)
-
-// anchorGen is used to generate heading anchor IDs, using the github-flavored markdown syntax.
-type anchorGen map[string]int
-
-func (a anchorGen) mkAnchor(text string) string {
-	text = strings.ToLower(text)
-	text = punctuation.ReplaceAllString(text, "")
-	text = strings.ReplaceAll(text, " ", "-")
-	idx := a[text]
-	a[text] = idx + 1
-	if idx > 0 {
-		return fmt.Sprintf("%s-%d", text, idx)
-	}
-	return text
 }
