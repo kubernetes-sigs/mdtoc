@@ -74,14 +74,13 @@ func GenerateTOC(doc []byte) (string, error) {
 		fmt.Fprintf(toc, "%s- [%s](#%s)\n", strings.Repeat("  ", heading.Level-baseLvl), content, anchor)
 	})
 
-	return string(toc.Bytes()), nil
+	return toc.String(), nil
 }
 
 type headingFn func(heading *ast.Heading)
 
 // walkHeadings runs the heading function on each heading in the parsed markdown document.
-func walkHeadings(doc ast.Node, headingFn headingFn) error {
-	var err error
+func walkHeadings(doc ast.Node, headingFn headingFn) {
 	ast.WalkFunc(doc, func(node ast.Node, entering bool) ast.WalkStatus {
 		if !entering {
 			return ast.GoToNext // Don't care about closing the heading section.
@@ -100,7 +99,6 @@ func walkHeadings(doc ast.Node, headingFn headingFn) error {
 
 		return ast.GoToNext
 	})
-	return err
 }
 
 // anchorGen is used to generate heading anchor IDs, using the github-flavored markdown syntax.
@@ -170,6 +168,7 @@ func headingBase(doc ast.Node) int {
 			baseLvl = heading.Level
 		}
 	})
+
 	return baseLvl
 }
 
@@ -196,7 +195,8 @@ func WriteTOC(file string, opts Options) error {
 		return fmt.Errorf("TOC closing tag before start tag")
 	}
 
-	var doc = raw
+	var doc []byte
+	doc = raw
 	// skipPrefix is only used when toc tags are present.
 	if opts.SkipPrefix && start != -1 && end != -1 {
 		doc = raw[end:]
@@ -217,7 +217,7 @@ func WriteTOC(file string, opts Options) error {
 
 	err = atomicWrite(file,
 		string(raw[:realStart])+"\n",
-		string(toc),
+		toc,
 		string(raw[end:]),
 	)
 	return err
