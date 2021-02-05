@@ -36,6 +36,8 @@ const (
 	StartTOC = "<!-- toc -->"
 	// EndTOC is the tag that marks the end of the TOC
 	EndTOC = "<!-- /toc -->"
+	//
+	MaxHeaderDepth = 6
 )
 
 var (
@@ -47,6 +49,7 @@ var (
 type Options struct {
 	Dryrun     bool
 	SkipPrefix bool
+	MaxDepth   int
 }
 
 // parse parses a raw markdown document to an AST.
@@ -60,7 +63,7 @@ func parse(b []byte) ast.Node {
 }
 
 // GenerateTOC parses a document and returns its TOC
-func GenerateTOC(doc []byte) (string, error) {
+func GenerateTOC(doc []byte, opts Options) (string, error) {
 	anchors := make(anchorGen)
 
 	md := parse(doc)
@@ -69,6 +72,9 @@ func GenerateTOC(doc []byte) (string, error) {
 	toc := &bytes.Buffer{}
 	htmlRenderer := html.NewRenderer(html.RendererOptions{})
 	walkHeadings(md, func(heading *ast.Heading) {
+		if heading.Level > opts.MaxDepth {
+			return
+		}
 		anchor := anchors.mkAnchor(asText(heading))
 		content := headingBody(htmlRenderer, heading)
 		fmt.Fprintf(toc, "%s- [%s](#%s)\n", strings.Repeat("  ", heading.Level-baseLvl), content, anchor)
@@ -201,7 +207,7 @@ func WriteTOC(file string, opts Options) error {
 	if opts.SkipPrefix && start != -1 && end != -1 {
 		doc = raw[end:]
 	}
-	toc, err := GenerateTOC(doc)
+	toc, err := GenerateTOC(doc, opts)
 	if err != nil {
 		return fmt.Errorf("failed to generate toc: %v", err)
 	}
@@ -238,7 +244,7 @@ func GetTOC(file string, opts Options) (string, error) {
 	if opts.SkipPrefix && start != -1 && end != -1 {
 		startPos = end
 	}
-	toc, err := GenerateTOC(doc[startPos:])
+	toc, err := GenerateTOC(doc[startPos:], opts)
 	if err != nil {
 		return toc, fmt.Errorf("failed to generate toc: %v", err)
 	}
