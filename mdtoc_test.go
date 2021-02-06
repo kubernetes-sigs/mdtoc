@@ -84,6 +84,7 @@ func TestDryRun(t *testing.T) {
 				Options: mdtoc.Options{
 					Dryrun:     true,
 					SkipPrefix: !test.includePrefix,
+					MaxDepth:   mdtoc.MaxHeaderDepth,
 				},
 				Inplace: true,
 			}
@@ -119,6 +120,7 @@ func TestInplace(t *testing.T) {
 				Options: mdtoc.Options{
 					SkipPrefix: !test.includePrefix,
 					Dryrun:     false,
+					MaxDepth:   mdtoc.MaxHeaderDepth,
 				},
 			}
 			assert.NoError(t, validateArgs(opts, []string{tmpFile.Name()}), test.file)
@@ -154,6 +156,7 @@ func TestOutput(t *testing.T) {
 				Options: mdtoc.Options{
 					Dryrun:     false,
 					SkipPrefix: !test.includePrefix,
+					MaxDepth:   mdtoc.MaxHeaderDepth,
 				},
 			}
 			assert.NoError(t, validateArgs(opts, []string{test.file}), test.file)
