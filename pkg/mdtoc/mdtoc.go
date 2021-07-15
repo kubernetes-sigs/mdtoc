@@ -137,18 +137,17 @@ func findTOCTags(raw []byte) (start, end int) {
 	return
 }
 
-func asText(node ast.Node) string {
-	var text string
+func asText(node ast.Node) (text string) {
 	ast.WalkFunc(node, func(node ast.Node, entering bool) ast.WalkStatus {
 		if !entering {
 			return ast.GoToNext // Don't care about closing the heading section.
 		}
-		t, ok := node.(*ast.Text)
-		if !ok {
-			return ast.GoToNext // Ignore non-text nodes.
+
+		switch node.(type) {
+		case *ast.Text, *ast.Code:
+			text += string(node.AsLeaf().Literal)
 		}
 
-		text += string(t.AsLeaf().Literal)
 		return ast.GoToNext
 	})
 	return text
