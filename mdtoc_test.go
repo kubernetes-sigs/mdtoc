@@ -71,6 +71,11 @@ var testcases = []testcase{{
 	includePrefix: false,
 	completeTOC:   true,
 	validTOCTags:  true,
+}, {
+	file:          testdata("code.md"),
+	includePrefix: true,
+	completeTOC:   true,
+	validTOCTags:  true,
 }}
 
 func testdata(subpath string) string {
