@@ -32,11 +32,11 @@ import (
 )
 
 const (
-	// StartTOC is the opening tag for the table of contents
+	// StartTOC is the opening tag for the table of contents.
 	StartTOC = "<!-- toc -->"
-	// EndTOC is the tag that marks the end of the TOC
+	// EndTOC is the tag that marks the end of the TOC.
 	EndTOC = "<!-- /toc -->"
-	//
+	// MaxHeaderDepth is the default maximum header depth for ToC generation.
 	MaxHeaderDepth = 6
 )
 
@@ -72,7 +72,7 @@ func GenerateTOC(doc []byte, opts Options) (string, error) {
 	toc := &bytes.Buffer{}
 	htmlRenderer := html.NewRenderer(html.RendererOptions{})
 	walkHeadings(md, func(heading *ast.Heading) {
-		if heading.Level > opts.MaxDepth {
+		if opts.MaxDepth > 0 && heading.Level > opts.MaxDepth {
 			return
 		}
 		anchor := anchors.mkAnchor(asText(heading))
