@@ -8,66 +8,96 @@ issues:
     - path: fake_.*\.go
       linters:
         - gocritic
-        - golint
         - dupl
 linters:
   disable-all: true
   enable:
     - asciicheck
+    - bidichk
     - bodyclose
+    - containedctx
+    - contextcheck
     - deadcode
+    - decorder
     - depguard
     - dogsled
     - dupl
+    - durationcheck
     - errcheck
+    - errchkjson
+    - errname
+    - errorlint
+    - execinquery
+    - exhaustive
+    - exportloopref
+    - forcetypeassert
+    - funlen
+    - gci
+    - gocognit
     - goconst
     - gocritic
     - gocyclo
+    - godot
     - godox
     - gofmt
     - gofumpt
     - goheader
     - goimports
-    - golint
+    - gomoddirectives
     - gomodguard
     - goprintffuncname
+    - gosec
     - gosimple
     - govet
+    - grouper
+    - ifshort
+    - importas
     - ineffassign
-    - interfacer
-    - maligned
+    - maintidx
+    - makezero
     - misspell
     - nakedret
+    - nestif
+    - nilerr
+    - nilnil
+    - noctx
+    - nolintlint
+    - nosprintfhostport
+    - paralleltest
     - prealloc
+    - predeclared
+    - promlinter
+    - revive
     - rowserrcheck
     - sqlclosecheck
     - staticcheck
     - structcheck
     - stylecheck
+    - tagliatelle
+    - tenv
+    - thelper
+    - tparallel
     - typecheck
     - unconvert
     - unparam
     - unused
     - varcheck
+    - wastedassign
     - whitespace
-    # - exhaustive
-    # - exportloopref
-    # - funlen
-    # - gci
+    - wrapcheck
+    # - cyclop
+    # - forbidigo
+    # - exhaustruct
     # - gochecknoglobals
     # - gochecknoinits
-    # - gocognit
-    # - godot
     # - goerr113
     # - gomnd
-    # - gosec
+    # - ireturn
     # - lll
-    # - nestif
     # - nlreturn
-    # - noctx
-    # - nolintlint
-    # - scopelint
+    # - nonamedreturns
     # - testpackage
+    # - varnamelen
     # - wsl
 linters-settings:
   godox:
@@ -83,31 +113,57 @@ linters-settings:
       # Diagnostic
       - appendAssign
       - argOrder
+      - badCall
       - badCond
+      - badLock
+      - badRegexp
+      - badSorting
+      - builtinShadowDecl
       - caseOrder
       - codegenComment
       - commentedOutCode
+      - deferInLoop
       - deprecatedComment
       - dupArg
       - dupBranchBody
       - dupCase
       - dupSubExpr
+      - dynamicFmtString
+      - emptyDecl
+      - evalOrder
       - exitAfterDefer
+      - externalErrorReassign
+      - filepathJoin
       - flagDeref
       - flagName
+      - mapKey
       - nilValReturn
       - offBy1
+      - regexpPattern
+      - returnAfterHttpError
       - sloppyReassign
+      - sloppyTypeAssert
+      - sortSlice
+      - sprintfQuotedString
+      - sqlQuery
+      - syncMapLoadAndDelete
+      - truncateCmp
+      - unnecessaryDefer
       - weakCond
-      - octalLiteral
 
       # Performance
       - appendCombine
       - equalFold
       - hugeParam
       - indexAlloc
+      - preferDecodeRune
+      - preferFprint
+      - preferStringWriter
+      - preferWriteByte
       - rangeExprCopy
       - rangeValCopy
+      - sliceClear
+      - stringXbytes
 
       # Style
       - assignOp
@@ -116,27 +172,43 @@ linters-settings:
       - commentFormatting
       - commentedOutImport
       - defaultCaseOrder
+      - deferUnlambda
       - docStub
+      - dupImport
       - elseif
       - emptyFallthrough
       - emptyStringTest
+      - exposedSyncMutex
       - hexLiteral
+      - httpNoBody
+      - ifElseChain
+      - ioutilDeprecated
       - methodExprCall
+      - newDeref
+      - octalLiteral
+      - preferFilepathJoin
+      - redundantSprint
       - regexpMust
+      - regexpSimplify
+      - ruleguard
       - singleCaseSwitch
       - sloppyLen
-      - stringXbytes
+      - stringConcatSimplify
+      - stringsCompare
       - switchTrue
+      - timeExprSimplify
+      - tooManyResultsChecker
       - typeAssertChain
+      - typeDefFirst
       - typeSwitchVar
       - underef
       - unlabelStmt
       - unlambda
       - unslice
       - valSwap
+      - whyNoLint
       - wrapperFunc
       - yodaStyleExpr
-      # - ifElseChain
 
       # Opinionated
       - builtinShadow
@@ -145,6 +217,7 @@ linters-settings:
       - nestingReduce
       - paramTypeCombine
       - ptrToRefParam
+      - todoCommentWithoutDetail
       - typeUnparen
       - unnamedResult
       - unnecessaryBlock
