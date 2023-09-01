@@ -17,9 +17,7 @@ linters:
     - bodyclose
     - containedctx
     - contextcheck
-    - deadcode
     - decorder
-    - depguard
     - dogsled
     - dupl
     - durationcheck
@@ -50,7 +48,6 @@ linters:
     - gosimple
     - govet
     - grouper
-    - ifshort
     - importas
     - ineffassign
     - maintidx
@@ -71,7 +68,6 @@ linters:
     - rowserrcheck
     - sqlclosecheck
     - staticcheck
-    - structcheck
     - stylecheck
     - tagliatelle
     - tenv
@@ -81,7 +77,6 @@ linters:
     - unconvert
     - unparam
     - unused
-    - varcheck
     - wastedassign
     - whitespace
     - wrapcheck
@@ -182,7 +177,6 @@ linters-settings:
       - hexLiteral
       - httpNoBody
       - ifElseChain
-      - ioutilDeprecated
       - methodExprCall
       - newDeref
       - octalLiteral
