@@ -17,7 +17,6 @@ limitations under the License.
 package main
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -120,7 +119,7 @@ func TestInplace(t *testing.T) {
 
 			// Create a copy of the test.file to modify.
 			escapedFile := strings.ReplaceAll(test.file, string(filepath.Separator), "_")
-			tmpFile, err := ioutil.TempFile("", escapedFile)
+			tmpFile, err := os.CreateTemp("", escapedFile)
 			require.NoError(t, err, test.file)
 			defer os.Remove(tmpFile.Name())
 			_, err = tmpFile.Write(original)
