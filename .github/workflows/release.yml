@@ -44,6 +44,8 @@ jobs:
 
       - name: Run goreleaser
         run: make goreleaser
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   attestation:
     runs-on: ubuntu-latest
