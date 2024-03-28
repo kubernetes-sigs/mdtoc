@@ -23,6 +23,8 @@ import (
 	"log"
 	"os"
 
+	"sigs.k8s.io/release-utils/version"
+
 	"sigs.k8s.io/mdtoc/pkg/mdtoc"
 )
 
@@ -38,6 +40,7 @@ func init() {
 	flag.BoolVar(&defaultOptions.Inplace, "inplace", false, "Whether to edit the file in-place, or output to STDOUT. Requires toc tags to be present.")
 	flag.BoolVar(&defaultOptions.SkipPrefix, "skip-prefix", true, "Whether to ignore any headers before the opening toc tag.")
 	flag.IntVar(&defaultOptions.MaxDepth, "max-depth", mdtoc.MaxHeaderDepth, "Limit the depth of headers that will be included in the TOC.")
+	flag.BoolVar(&defaultOptions.Version, "version", false, "Show MDTOC version.")
 
 	flag.Usage = func() {
 		fmt.Fprintf(flag.CommandLine.Output(), "Usage: %s [OPTIONS] [FILE]...\n", os.Args[0])
@@ -49,6 +52,17 @@ func init() {
 
 func main() {
 	flag.Parse()
+
+	if defaultOptions.Version {
+		v := version.GetVersionInfo()
+		v.Name = "mdtoc"
+		v.Description = "is a utility for generating a table-of-contents for markdown files"
+		v.ASCIIName = "true"
+		v.FontName = "banner"
+		fmt.Fprintln(os.Stdout, v.String())
+		os.Exit(0)
+	}
+
 	if err := validateArgs(defaultOptions, flag.Args()); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		flag.Usage()

@@ -49,6 +49,7 @@ var (
 type Options struct {
 	Dryrun     bool
 	SkipPrefix bool
+	Version    bool
 	MaxDepth   int
 }
 
