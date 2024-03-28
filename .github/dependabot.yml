@@ -6,6 +6,10 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
+    labels:
+      - "area/dependency"
+      - "release-note-none"
+      - "ok-to-test"
     groups:
       all:
         update-types:
@@ -17,6 +21,10 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
+    labels:
+      - "area/dependency"
+      - "release-note-none"
+      - "ok-to-test"
     groups:
       all:
         update-types:
