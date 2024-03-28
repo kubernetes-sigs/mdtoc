@@ -42,13 +42,8 @@ jobs:
         id: get_tag
         run: echo "TAG=${GITHUB_REF#refs/*/}" >> "$GITHUB_OUTPUT"
 
-      - name: Run Mage
-        uses: magefile/mage-action@6a5dcb5fe61f43d7c08a98bc3cf9bc63c308c08e # v3.0.0
-        with:
-          version: latest
-          args: buildBinaries
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run goreleaser
+        run: make goreleaser
 
   attestation:
     runs-on: ubuntu-latest

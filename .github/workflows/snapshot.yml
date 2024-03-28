@@ -27,5 +27,8 @@ jobs:
         with:
           install-only: true
 
+      - name: Run goreleaser snapshot
+        run: make snapshot
+
       - name: check binary
         run: ./dist/mdtoc-amd64-linux -version
