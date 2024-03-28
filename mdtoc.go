@@ -23,9 +23,8 @@ import (
 	"log"
 	"os"
 
-	"sigs.k8s.io/release-utils/version"
-
 	"sigs.k8s.io/mdtoc/pkg/mdtoc"
+	"sigs.k8s.io/release-utils/version"
 )
 
 type utilityOptions struct {
