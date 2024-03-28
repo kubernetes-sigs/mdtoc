@@ -69,13 +69,13 @@ jobs:
         uses: kubernetes-sigs/release-actions/setup-tejolote@10fecc1c66829d291b2f2fb1a27329d152f212e6 # v0.1.3
 
       - run: |
-          tejolote attest --artifacts github://kubernetes-sigs/tejolote/${{ steps.tag.outputs.tag_name }} github://kubernetes-sigs/tejolote/"${GITHUB_RUN_ID}" --output tejolote.intoto.json --sign
+          tejolote attest --artifacts github://kubernetes-sigs/mdtoc/${{ steps.tag.outputs.tag_name }} github://kubernetes-sigs/mdtoc/"${GITHUB_RUN_ID}" --output mdtoc.intoto.json --sign
 
       - name: Release
         uses: softprops/action-gh-release@9d7c94cfd0a1f3ed45544c887983e9fa900f0564 # v2.0.4
         with:
-          files: tejolote.intoto.json
+          files: mdtoc.intoto.json
           tag_name: "${{ steps.tag.outputs.tag_name }}"
           token: ${{ secrets.GITHUB_TOKEN }}
         env:
-          GITHUB_REPOSITORY: kubernetes-sigs/tejolote
+          GITHUB_REPOSITORY: kubernetes-sigs/mdtoc
