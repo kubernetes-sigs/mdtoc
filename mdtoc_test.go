@@ -95,7 +95,7 @@ func TestDryRun(t *testing.T) {
 				},
 				Inplace: true,
 			}
-			assert.NoError(t, validateArgs(opts, []string{test.file}), test.file)
+			require.NoError(t, validateArgs(opts, []string{test.file}), test.file)
 
 			err := mdtoc.WriteTOC(test.file, opts.Options)
 
@@ -139,7 +139,7 @@ func TestInplace(t *testing.T) {
 			if test.validTOCTags {
 				require.NoError(t, err, test.file)
 			} else {
-				assert.Error(t, err, test.file)
+				require.Error(t, err, test.file)
 			}
 
 			updated, err := os.ReadFile(tmpFile.Name())
@@ -173,10 +173,10 @@ func TestOutput(t *testing.T) {
 					MaxDepth:   mdtoc.MaxHeaderDepth,
 				},
 			}
-			assert.NoError(t, validateArgs(opts, []string{test.file}), test.file)
+			require.NoError(t, validateArgs(opts, []string{test.file}), test.file)
 
 			toc, err := mdtoc.GetTOC(test.file, opts.Options)
-			assert.NoError(t, err, test.file)
+			require.NoError(t, err, test.file)
 
 			if test.expectedTOC != "" {
 				assert.Equal(t, test.expectedTOC, toc, test.file)

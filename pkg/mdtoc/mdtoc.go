@@ -18,6 +18,7 @@ package mdtoc
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"math"
 	"os"
@@ -190,13 +191,13 @@ func WriteTOC(file string, opts Options) error {
 	start, end := findTOCTags(raw)
 
 	if start == -1 {
-		return fmt.Errorf("missing opening TOC tag")
+		return errors.New("missing opening TOC tag")
 	}
 	if end == -1 {
-		return fmt.Errorf("missing closing TOC tag")
+		return errors.New("missing closing TOC tag")
 	}
 	if end < start {
-		return fmt.Errorf("TOC closing tag before start tag")
+		return errors.New("TOC closing tag before start tag")
 	}
 
 	var doc []byte

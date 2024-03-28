@@ -17,6 +17,7 @@ limitations under the License.
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -78,13 +79,13 @@ func main() {
 
 func validateArgs(opts utilityOptions, args []string) error {
 	if len(args) < 1 {
-		return fmt.Errorf("must specify at least 1 file")
+		return errors.New("must specify at least 1 file")
 	}
 	if !opts.Inplace && len(args) > 1 {
-		return fmt.Errorf("non-inplace updates require exactly 1 file")
+		return errors.New("non-inplace updates require exactly 1 file")
 	}
 	if opts.Dryrun && !opts.Inplace {
-		return fmt.Errorf("--dryrun requires --inplace")
+		return errors.New("--dryrun requires --inplace")
 	}
 	return nil
 }
