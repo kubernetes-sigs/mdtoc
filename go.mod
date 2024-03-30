@@ -3,7 +3,7 @@ module sigs.k8s.io/mdtoc
 go 1.22
 
 require (
-	github.com/gomarkdown/markdown v0.0.0-20231222211730-1d6d20845b47
+	github.com/gomarkdown/markdown v0.0.0-20240328165702-4d01890c35c0
 	github.com/mmarkdown/mmark v2.0.40+incompatible
 	github.com/stretchr/testify v1.9.0
 	sigs.k8s.io/release-utils v0.7.7
