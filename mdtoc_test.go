@@ -84,6 +84,7 @@ func testdata(subpath string) string {
 func TestDryRun(t *testing.T) {
 	t.Parallel()
 	for _, test := range testcases {
+		test := test
 		t.Run(test.file, func(t *testing.T) {
 			t.Parallel()
 			opts := utilityOptions{
@@ -110,6 +111,7 @@ func TestDryRun(t *testing.T) {
 func TestInplace(t *testing.T) {
 	t.Parallel()
 	for _, test := range testcases {
+		test := test
 		t.Run(test.file, func(t *testing.T) {
 			t.Parallel()
 			original, err := os.ReadFile(test.file)
@@ -155,6 +157,7 @@ func TestInplace(t *testing.T) {
 func TestOutput(t *testing.T) {
 	t.Parallel()
 	for _, test := range testcases {
+		test := test
 		// Ignore the invalid cases, they're only for inplace tests.
 		if !test.validTOCTags {
 			continue
