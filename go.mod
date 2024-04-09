@@ -6,7 +6,7 @@ require (
 	github.com/gomarkdown/markdown v0.0.0-20240328165702-4d01890c35c0
 	github.com/mmarkdown/mmark v2.0.40+incompatible
 	github.com/stretchr/testify v1.9.0
-	sigs.k8s.io/release-utils v0.7.7
+	sigs.k8s.io/release-utils v0.8.1
 )
 
 require (
