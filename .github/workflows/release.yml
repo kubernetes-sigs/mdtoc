@@ -34,7 +34,7 @@ jobs:
         uses: kubernetes-sigs/release-actions/setup-bom@2f8b9ec22aedc9ce15039b6c7716aa6c2907df1c # v0.2.0
 
       - name: Install GoReleaser
-        uses: goreleaser/goreleaser-action@7ec5c2b0c6cdda6e8bbb49444bc797dd33d74dd8 # v5.0.0
+        uses: goreleaser/goreleaser-action@5742e2a039330cbb23ebf35f046f814d4c6ff811 # v5.1.0
         with:
           install-only: true
 
@@ -74,7 +74,7 @@ jobs:
           tejolote attest --artifacts github://kubernetes-sigs/mdtoc/${{ steps.tag.outputs.tag_name }} github://kubernetes-sigs/mdtoc/"${GITHUB_RUN_ID}" --output mdtoc.intoto.json --sign
 
       - name: Release
-        uses: softprops/action-gh-release@9d7c94cfd0a1f3ed45544c887983e9fa900f0564 # v2.0.4
+        uses: softprops/action-gh-release@69320dbe05506a9a39fc8ae11030b214ec2d1f87 # v2.0.5
         with:
           files: mdtoc.intoto.json
           tag_name: "${{ steps.tag.outputs.tag_name }}"
