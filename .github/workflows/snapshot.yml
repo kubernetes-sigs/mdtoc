@@ -31,4 +31,4 @@ jobs:
         run: make snapshot
 
       - name: check binary
-        run: ./dist/mdtoc-amd64-linux -version
+        run: ./dist/mdtoc-amd64-linux -v
