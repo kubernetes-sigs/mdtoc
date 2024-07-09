@@ -114,6 +114,11 @@ linters:
     # - varnamelen
     # - wsl
 linters-settings:
+  gci:
+    sections:
+      - standard
+      - default
+      - localmodule
   cyclop:
     max-complexity: 15
   godox:
