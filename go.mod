@@ -1,6 +1,6 @@
 module sigs.k8s.io/mdtoc
 
-go 1.22
+go 1.23
 
 require (
 	github.com/gomarkdown/markdown v0.0.0-20240328165702-4d01890c35c0
@@ -11,7 +11,7 @@ require (
 )
 
 require (
-	github.com/BurntSushi/toml v0.3.1 // indirect
+	github.com/BurntSushi/toml v1.4.0 // indirect
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
