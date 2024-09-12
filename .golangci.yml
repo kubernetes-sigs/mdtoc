@@ -25,7 +25,6 @@ linters:
     - errname
     - errorlint
     - exhaustive
-    - exportloopref
     - fatcontext
     - forcetypeassert
     - funlen
