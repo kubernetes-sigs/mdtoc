@@ -3,7 +3,6 @@
 aliases:
   kubernetes/enhancements-admins:
     - justaugustus
-    - mrbobbytables
     - johnbelamaric
     - jeremyrickard
   sig-release-leads:
