@@ -84,9 +84,11 @@ func testdata(subpath string) string {
 
 func TestDryRun(t *testing.T) {
 	t.Parallel()
+
 	for _, test := range testcases {
 		t.Run(test.file, func(t *testing.T) {
 			t.Parallel()
+
 			opts := utilityOptions{
 				Options: mdtoc.Options{
 					Dryrun:     true,
@@ -110,16 +112,19 @@ func TestDryRun(t *testing.T) {
 
 func TestInplace(t *testing.T) {
 	t.Parallel()
+
 	for _, test := range testcases {
 		t.Run(test.file, func(t *testing.T) {
 			t.Parallel()
+
 			original, err := os.ReadFile(test.file)
 			require.NoError(t, err, test.file)
 
 			// Create a copy of the test.file to modify.
 			escapedFile := strings.ReplaceAll(test.file, string(filepath.Separator), "_")
-			tmpFile, err := os.CreateTemp("", escapedFile)
+			tmpFile, err := os.CreateTemp(t.TempDir(), escapedFile)
 			require.NoError(t, err, test.file)
+
 			defer os.Remove(tmpFile.Name())
 			_, err = tmpFile.Write(original)
 			require.NoError(t, err, test.file)
@@ -155,6 +160,7 @@ func TestInplace(t *testing.T) {
 
 func TestOutput(t *testing.T) {
 	t.Parallel()
+
 	for _, test := range testcases {
 		// Ignore the invalid cases, they're only for inplace tests.
 		if !test.validTOCTags {
@@ -163,6 +169,7 @@ func TestOutput(t *testing.T) {
 
 		t.Run(test.file, func(t *testing.T) {
 			t.Parallel()
+
 			opts := utilityOptions{
 				Options: mdtoc.Options{
 					Dryrun:     false,

@@ -60,6 +60,7 @@ func parse(b []byte) ast.Node {
 		// mparser is required for parsing the --- title blocks
 		ParserHook: mparser.Hook,
 	}
+
 	return p.Parse(b)
 }
 
@@ -72,10 +73,12 @@ func GenerateTOC(doc []byte, opts Options) (string, error) {
 	baseLvl := headingBase(md)
 	toc := &bytes.Buffer{}
 	htmlRenderer := html.NewRenderer(html.RendererOptions{})
+
 	walkHeadings(md, func(heading *ast.Heading) {
 		if opts.MaxDepth > 0 && heading.Level > opts.MaxDepth {
 			return
 		}
+
 		anchor := anchors.mkAnchor(asText(heading))
 		content := headingBody(htmlRenderer, heading)
 		fmt.Fprintf(toc, "%s- [%s](#%s)\n", strings.Repeat("  ", heading.Level-baseLvl), content, anchor)
@@ -117,9 +120,11 @@ func (a anchorGen) mkAnchor(text string) string {
 	text = strings.ReplaceAll(text, " ", "-")
 	idx := a[text]
 	a[text] = idx + 1
+
 	if idx > 0 {
 		return fmt.Sprintf("%s-%d", text, idx)
 	}
+
 	return text
 }
 
@@ -130,11 +135,13 @@ func findTOCTags(raw []byte) (start, end int) {
 	} else {
 		start = -1
 	}
+
 	if ind := endTOCRegex.FindIndex(raw); len(ind) > 0 {
 		end = ind[0]
 	} else {
 		end = -1
 	}
+
 	return
 }
 
@@ -151,17 +158,20 @@ func asText(node ast.Node) (text string) {
 
 		return ast.GoToNext
 	})
+
 	return text
 }
 
 // Renders the heading body as HTML.
 func headingBody(renderer *html.Renderer, heading *ast.Heading) string {
 	var buf bytes.Buffer
+
 	for _, child := range heading.Children {
 		ast.WalkFunc(child, func(node ast.Node, entering bool) ast.WalkStatus {
 			return renderer.RenderNode(&buf, node, entering)
 		})
 	}
+
 	return strings.TrimSpace(buf.String())
 }
 
@@ -169,6 +179,7 @@ func headingBody(renderer *html.Renderer, heading *ast.Heading) string {
 // when a top-level heading is skipped in the prefix.
 func headingBase(doc ast.Node) int {
 	baseLvl := math.MaxInt32
+
 	walkHeadings(doc, func(heading *ast.Heading) {
 		if baseLvl > heading.Level {
 			baseLvl = heading.Level
@@ -194,9 +205,11 @@ func WriteTOC(file string, opts Options) error {
 	if start == -1 {
 		return errors.New("missing opening TOC tag")
 	}
+
 	if end == -1 {
 		return errors.New("missing closing TOC tag")
 	}
+
 	if end < start {
 		return errors.New("TOC closing tag before start tag")
 	}
@@ -207,12 +220,14 @@ func WriteTOC(file string, opts Options) error {
 	if opts.SkipPrefix && start != -1 && end != -1 {
 		doc = raw[end:]
 	}
+
 	toc, err := GenerateTOC(doc, opts)
 	if err != nil {
 		return fmt.Errorf("failed to generate toc: %w", err)
 	}
 
 	realStart := start + len(StartTOC)
+
 	oldTOC := string(raw[realStart:end])
 	if strings.TrimSpace(oldTOC) == strings.TrimSpace(toc) {
 		// No changes required.
@@ -226,6 +241,7 @@ func WriteTOC(file string, opts Options) error {
 		toc,
 		string(raw[end:]),
 	)
+
 	return err
 }
 
@@ -244,6 +260,7 @@ func GetTOC(file string, opts Options) (string, error) {
 	if opts.SkipPrefix && start != -1 && end != -1 {
 		startPos = end
 	}
+
 	toc, err := GenerateTOC(doc[startPos:], opts)
 	if err != nil {
 		return toc, fmt.Errorf("failed to generate toc: %w", err)
@@ -256,7 +273,9 @@ func GetTOC(file string, opts Options) (string, error) {
 // A temporary file is used so no changes are made to the original in the case of an error.
 func atomicWrite(filePath string, chunks ...string) error {
 	tmpPath := filePath + "_tmp"
+
 	const perms = 0o600
+
 	tmp, err := os.OpenFile(tmpPath, os.O_WRONLY|os.O_CREATE|os.O_EXCL, perms)
 	if err != nil {
 		return fmt.Errorf("unable to open tepmorary file %s: %w", tmpPath, err)
