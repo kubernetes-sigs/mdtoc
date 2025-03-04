@@ -25,6 +25,7 @@ linters:
     - errname
     - errorlint
     - exhaustive
+    - exptostd
     - fatcontext
     - forcetypeassert
     - funlen
@@ -50,6 +51,7 @@ linters:
     - gosmopolitan
     - govet
     - grouper
+    - iface
     - importas
     - inamedparam
     - ineffassign
@@ -65,7 +67,9 @@ linters:
     - nakedret
     - nestif
     - nilerr
+    - nilnesserr
     - nilnil
+    - nlreturn
     - noctx
     - nolintlint
     - nosprintfhostport
@@ -76,6 +80,7 @@ linters:
     - promlinter
     - protogetter
     - reassign
+    - recvcheck
     - revive
     - rowserrcheck
     - sloglint
@@ -85,7 +90,6 @@ linters:
     - stylecheck
     - tagalign
     - tagliatelle
-    - tenv
     - testableexamples
     - testifylint
     - thelper
@@ -95,9 +99,11 @@ linters:
     - unparam
     - unused
     - usestdlibvars
+    - usetesting
     - wastedassign
     - whitespace
     - wrapcheck
+    - wsl
     - zerologlint
     # - depguard
     # - err113
@@ -111,7 +117,6 @@ linters:
     # - nonamedreturns
     # - testpackage
     # - varnamelen
-    # - wsl
 linters-settings:
   gci:
     sections:
@@ -125,8 +130,5 @@ linters-settings:
       - BUG
       - FIXME
       - HACK
-  errcheck:
-    check-type-assertions: true
-    check-blank: true
   gocritic:
     enable-all: true

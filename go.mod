@@ -1,6 +1,6 @@
 module sigs.k8s.io/mdtoc
 
-go 1.23
+go 1.24
 
 require (
 	github.com/gomarkdown/markdown v0.0.0-20240328165702-4d01890c35c0

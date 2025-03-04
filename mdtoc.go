@@ -65,6 +65,7 @@ func run(_ *cobra.Command, args []string) error {
 		v.ASCIIName = "true"
 		v.FontName = "banner"
 		fmt.Fprintln(os.Stdout, v.String())
+
 		return nil
 	}
 
@@ -74,11 +75,13 @@ func run(_ *cobra.Command, args []string) error {
 
 	if defaultOptions.Inplace {
 		var retErr error
+
 		for _, file := range args {
 			if err := mdtoc.WriteTOC(file, defaultOptions.Options); err != nil {
 				retErr = errors.Join(retErr, fmt.Errorf("%s: %w", file, err))
 			}
 		}
+
 		return retErr
 	}
 
@@ -86,6 +89,7 @@ func run(_ *cobra.Command, args []string) error {
 	if err != nil {
 		return fmt.Errorf("get toc: %w", err)
 	}
+
 	fmt.Println(toc)
 
 	return nil
@@ -95,11 +99,14 @@ func validateArgs(opts utilityOptions, args []string) error {
 	if len(args) < 1 {
 		return errors.New("must specify at least 1 file")
 	}
+
 	if !opts.Inplace && len(args) > 1 {
 		return errors.New("non-inplace updates require exactly 1 file")
 	}
+
 	if opts.Dryrun && !opts.Inplace {
 		return errors.New("--dryrun requires --inplace")
 	}
+
 	return nil
 }
