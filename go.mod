@@ -1,13 +1,13 @@
 module sigs.k8s.io/mdtoc
 
-go 1.24
+go 1.24.0
 
 require (
 	github.com/gomarkdown/markdown v0.0.0-20240328165702-4d01890c35c0
 	github.com/mmarkdown/mmark v2.0.40+incompatible
 	github.com/spf13/cobra v1.10.1
 	github.com/stretchr/testify v1.11.1
-	sigs.k8s.io/release-utils v0.12.1
+	sigs.k8s.io/release-utils v0.12.2
 )
 
 require (
