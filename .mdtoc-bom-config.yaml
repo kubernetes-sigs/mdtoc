@@ -1,5 +1,5 @@
 ---
-namespace: https://sigs.k8s.io/zeitgeist
+namespace: https://sigs.k8s.io/mdtoc
 license: Apache-2.0
 name: mdtoc
 creator:
