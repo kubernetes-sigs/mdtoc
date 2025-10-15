@@ -89,12 +89,12 @@ update-deps-go: ## Update all golang dependencies for this repo
 ## Release
 
 .PHONY: goreleaser
-goreleaser: ## Build zeitgeist binaries with goreleaser
+goreleaser: ## Build mdtoc binaries with goreleaser
 	LDFLAGS="$(LDFLAGS)" GIT_HASH=$(GIT_HASH) GIT_VERSION=$(GIT_VERSION) \
 	goreleaser release --clean
 
 .PHONY: snapshot
-snapshot: ## Build zeitgeist binaries with goreleaser in snapshot mode
+snapshot: ## Build mdtoc binaries with goreleaser in snapshot mode
 	LDFLAGS="$(LDFLAGS)" GIT_HASH=$(GIT_HASH) GIT_VERSION=$(GIT_VERSION) \
 	goreleaser release --clean --snapshot --skip=sign,publish
 

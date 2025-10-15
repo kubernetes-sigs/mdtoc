@@ -1,6 +1,6 @@
 ---
 name: Bug Report
-about: Report a bug encountered while using zeitgeist
+about: Report a bug encountered while using mdtoc
 labels: kind/bug, sig/release, area/release-eng
 
 ---

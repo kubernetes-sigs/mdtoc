@@ -1,6 +1,6 @@
 ---
 name: Feature Request
-about: Suggest a feature for zeitgeist
+about: Suggest a feature for mdtoc
 labels: kind/feature, sig/release, area/release-eng
 
 ---
