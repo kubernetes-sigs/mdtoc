@@ -7,7 +7,7 @@ require (
 	github.com/mmarkdown/mmark v2.0.40+incompatible
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.11.1
-	sigs.k8s.io/release-utils v0.12.2
+	sigs.k8s.io/release-utils v0.12.3
 )
 
 require (
