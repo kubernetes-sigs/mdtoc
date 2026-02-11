@@ -32,11 +32,15 @@ import (
 )
 
 const (
-	// StartTOC is the opening tag for the table of contents.
+	// StartTOC is the HTML comment tag that marks the beginning of the generated
+	// table of contents section in a markdown file.
 	StartTOC = "<!-- toc -->"
-	// EndTOC is the tag that marks the end of the TOC.
+	// EndTOC is the HTML comment tag that marks the end of the generated table
+	// of contents section. Content between StartTOC and EndTOC is replaced on
+	// each invocation.
 	EndTOC = "<!-- /toc -->"
-	// MaxHeaderDepth is the default maximum header depth for ToC generation.
+	// MaxHeaderDepth is the default maximum heading level (1-6) to include in
+	// the generated table of contents.
 	MaxHeaderDepth = 6
 )
 
@@ -45,12 +49,21 @@ var (
 	endTOCRegex   = regexp.MustCompile("(?i)" + EndTOC)
 )
 
-// Options set for the toc generator.
+// Options configures the table of contents generator.
 type Options struct {
-	Dryrun     bool
+	// Dryrun checks for changes without writing. When set, WriteTOC returns an
+	// error containing the expected TOC if the file content would change.
+	Dryrun bool
+	// SkipPrefix ignores any headings that appear before the opening TOC tag.
+	// This is the default behavior and prevents document titles from appearing
+	// in the generated table of contents.
 	SkipPrefix bool
-	Version    bool
-	MaxDepth   int
+	// Version indicates whether to show version information instead of
+	// generating a TOC.
+	Version bool
+	// MaxDepth limits the heading level depth included in the TOC. A value of
+	// 0 or MaxHeaderDepth includes all levels (h1-h6).
+	MaxDepth int
 }
 
 // parse parses a raw markdown document to an AST.
@@ -64,7 +77,10 @@ func parse(b []byte) ast.Node {
 	return p.Parse(b)
 }
 
-// GenerateTOC parses a document and returns its TOC.
+// GenerateTOC parses a raw markdown document and returns the generated table of
+// contents as a string. Each heading produces a markdown list entry with a
+// GitHub-flavored anchor link. Indentation is normalized so the shallowest
+// heading level starts at zero indentation.
 func GenerateTOC(doc []byte, opts Options) (string, error) {
 	anchors := make(anchorGen)
 
@@ -192,8 +208,11 @@ func headingBase(doc ast.Node) int {
 // Match punctuation that is filtered out from anchor IDs.
 var punctuation = regexp.MustCompile(`[^\w\- ]`)
 
-// WriteTOC writes the TOC generator on file with options.
-// Returns the generated toc, and any error.
+// WriteTOC generates a table of contents and writes it into the file between
+// the StartTOC and EndTOC tags. The file must contain both tags. If the
+// generated TOC matches the existing content, the file is not modified. When
+// Options.Dryrun is set, the file is never modified and an error is returned
+// if changes would be needed.
 func WriteTOC(file string, opts Options) error {
 	raw, err := os.ReadFile(file)
 	if err != nil {
@@ -245,8 +264,8 @@ func WriteTOC(file string, opts Options) error {
 	return err
 }
 
-// GetTOC generates the TOC from a file with options.
-// Returns the generated toc, and any error.
+// GetTOC reads a markdown file and returns the generated table of contents as a
+// string. Unlike WriteTOC, it does not modify the file.
 func GetTOC(file string, opts Options) (string, error) {
 	doc, err := os.ReadFile(file)
 	if err != nil {
