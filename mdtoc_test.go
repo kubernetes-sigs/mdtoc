@@ -126,6 +126,7 @@ func TestInplace(t *testing.T) {
 			require.NoError(t, err, test.file)
 
 			defer os.Remove(tmpFile.Name())
+
 			_, err = tmpFile.Write(original)
 			require.NoError(t, err, test.file)
 			require.NoError(t, tmpFile.Close(), test.file)

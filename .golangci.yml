@@ -1,11 +1,11 @@
 ---
+version: "2"
 run:
   concurrency: 6
-  timeout: 5m
-issues:
 linters:
-  disable-all: true
+  default: none
   enable:
+    - arangolint
     - asasalint
     - asciicheck
     - bidichk
@@ -20,6 +20,8 @@ linters:
     - dupl
     - dupword
     - durationcheck
+    - embeddedstructfieldcheck
+    - forbidigo
     - errcheck
     - errchkjson
     - errname
@@ -28,26 +30,24 @@ linters:
     - exptostd
     - fatcontext
     - forcetypeassert
+    - funcorder
     - funlen
-    - gci
     - ginkgolinter
     - gocheckcompilerdirectives
+    - gochecknoinits
     - gochecksumtype
     - gocognit
     - goconst
     - gocritic
     - gocyclo
+    - godoclint
     - godot
     - godox
-    - gofmt
-    - gofumpt
     - goheader
-    - goimports
     - gomoddirectives
     - gomodguard
     - goprintffuncname
     - gosec
-    - gosimple
     - gosmopolitan
     - govet
     - grouper
@@ -57,12 +57,15 @@ linters:
     - ineffassign
     - interfacebloat
     - intrange
+    - iotamixing
+    - ireturn
     - loggercheck
     - maintidx
     - makezero
     - mirror
     - misspell
     - mnd
+    - modernize
     - musttag
     - nakedret
     - nestif
@@ -71,6 +74,7 @@ linters:
     - nilnil
     - nlreturn
     - noctx
+    - nonamedreturns
     - nolintlint
     - nosprintfhostport
     - paralleltest
@@ -87,48 +91,69 @@ linters:
     - spancheck
     - sqlclosecheck
     - staticcheck
-    - stylecheck
     - tagalign
     - tagliatelle
     - testableexamples
     - testifylint
+    - testpackage
     - thelper
     - tparallel
-    - typecheck
     - unconvert
     - unparam
+    - unqueryvet
     - unused
     - usestdlibvars
     - usetesting
     - wastedassign
     - whitespace
     - wrapcheck
-    - wsl
+    - wsl_v5
     - zerologlint
     # - depguard
     # - err113
     # - exhaustruct
-    # - forbidigo
     # - gochecknoglobals
-    # - gochecknoinits
-    # - ireturn
     # - lll
-    # - nlreturn
-    # - nonamedreturns
-    # - testpackage
+    # - noinlineerr
     # - varnamelen
-linters-settings:
-  gci:
-    sections:
-      - standard
-      - default
-      - localmodule
-  cyclop:
-    max-complexity: 15
-  godox:
-    keywords:
-      - BUG
-      - FIXME
-      - HACK
-  gocritic:
-    enable-all: true
+  settings:
+    cyclop:
+      max-complexity: 15
+    gocritic:
+      enable-all: true
+      disabled-checks:
+        - unnamedResult
+    godox:
+      keywords:
+        - BUG
+        - FIXME
+        - HACK
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - localmodule
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

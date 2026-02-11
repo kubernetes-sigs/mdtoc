@@ -1,4 +1,5 @@
 ./mdtoc
+bin/
 coverage*
 dist/
 output/

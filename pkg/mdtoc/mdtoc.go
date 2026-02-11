@@ -92,11 +92,16 @@ func stripFrontMatter(b []byte) []byte {
 }
 
 // parse parses a raw markdown document to an AST.
-func parse(b []byte) ast.Node {
+func parse(b []byte) *ast.Document {
 	b = stripFrontMatter(b)
 	p := parser.NewWithExtensions(parser.CommonExtensions)
 
-	return p.Parse(b)
+	doc, ok := p.Parse(b).(*ast.Document)
+	if !ok {
+		return &ast.Document{}
+	}
+
+	return doc
 }
 
 // GenerateTOC parses a raw markdown document and returns the generated table of
@@ -166,24 +171,25 @@ func (a anchorGen) mkAnchor(text string) string {
 	return text
 }
 
-// Locate the case-insensitive TOC tags.
-func findTOCTags(raw []byte) (start, end int) {
+// findTOCTags locates the case-insensitive TOC tags.
+func findTOCTags(raw []byte) (int, int) {
+	start := -1
+	end := -1
+
 	if ind := startTOCRegex.FindIndex(raw); len(ind) > 0 {
 		start = ind[0]
-	} else {
-		start = -1
 	}
 
 	if ind := endTOCRegex.FindIndex(raw); len(ind) > 0 {
 		end = ind[0]
-	} else {
-		end = -1
 	}
 
-	return
+	return start, end
 }
 
-func asText(node ast.Node) (text string) {
+func asText(node ast.Node) string {
+	var text string
+
 	ast.WalkFunc(node, func(node ast.Node, entering bool) ast.WalkStatus {
 		if !entering {
 			return ast.GoToNext // Don't care about closing the heading section.
@@ -255,8 +261,7 @@ func WriteTOC(file string, opts Options) error {
 		return errors.New("TOC closing tag before start tag")
 	}
 
-	var doc []byte
-	doc = raw
+	doc := raw
 	// skipPrefix is only used when toc tags are present.
 	if opts.SkipPrefix && start != -1 && end != -1 {
 		doc = raw[end:]

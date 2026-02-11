@@ -38,12 +38,13 @@ var cmd = &cobra.Command{
 
 type utilityOptions struct {
 	mdtoc.Options
+
 	Inplace bool
 }
 
 var defaultOptions utilityOptions
 
-func init() {
+func initFlags() {
 	cmd.PersistentFlags().BoolVarP(&defaultOptions.Dryrun, "dryrun", "d", false, "Whether to check for changes to TOC, rather than overwriting. Requires --inplace flag.")
 	cmd.PersistentFlags().BoolVarP(&defaultOptions.Inplace, "inplace", "i", false, "Whether to edit the file in-place, or output to STDOUT. Requires toc tags to be present.")
 	cmd.PersistentFlags().BoolVarP(&defaultOptions.SkipPrefix, "skip-prefix", "s", true, "Whether to ignore any headers before the opening toc tag.")
@@ -52,6 +53,8 @@ func init() {
 }
 
 func main() {
+	initFlags()
+
 	if err := cmd.Execute(); err != nil {
 		log.Fatal(err)
 	}
@@ -90,7 +93,7 @@ func run(_ *cobra.Command, args []string) error {
 		return fmt.Errorf("get toc: %w", err)
 	}
 
-	fmt.Println(toc)
+	fmt.Fprintln(os.Stdout, toc)
 
 	return nil
 }
