@@ -44,6 +44,7 @@ type utilityOptions struct {
 
 	Inplace bool
 	Output  string
+	Version bool
 }
 
 var defaultOptions utilityOptions
