@@ -19,6 +19,12 @@ jobs:
           go-version-file: './go.mod'
           check-latest: true
 
+      - name: Run tests
+        run: make test
+
+      - name: Run verification
+        run: make verify
+
       - name: Install bom
         uses: kubernetes-sigs/release-actions/setup-bom@8af7b2a5596dff526de9db59b2c4b8457e9f52a1 # v0.4.0
 
