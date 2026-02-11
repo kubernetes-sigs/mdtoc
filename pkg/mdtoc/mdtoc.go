@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -57,9 +58,6 @@ type Options struct {
 	// This is the default behavior and prevents document titles from appearing
 	// in the generated table of contents.
 	SkipPrefix bool
-	// Version indicates whether to show version information instead of
-	// generating a TOC.
-	Version bool
 	// MaxDepth limits the heading level depth included in the TOC. A value of
 	// 0 or MaxHeaderDepth includes all levels (h1-h6).
 	MaxDepth int
@@ -261,9 +259,9 @@ func WriteTOC(file string, opts Options) error {
 		return errors.New("TOC closing tag before start tag")
 	}
 
-	doc := raw
 	// skipPrefix is only used when toc tags are present.
-	if opts.SkipPrefix && start != -1 && end != -1 {
+	doc := raw
+	if opts.SkipPrefix {
 		doc = raw[end:]
 	}
 
@@ -323,26 +321,34 @@ func GetTOCFromBytes(doc []byte, opts Options) (string, error) {
 
 // atomicWrite writes the chunks sequentially to the filePath.
 // A temporary file is used so no changes are made to the original in the case of an error.
+// The original file's permissions are preserved.
 func atomicWrite(filePath string, chunks ...string) error {
-	tmpPath := filePath + "_tmp"
-
-	const perms = 0o600
-
-	tmp, err := os.OpenFile(tmpPath, os.O_WRONLY|os.O_CREATE|os.O_EXCL, perms)
+	fi, err := os.Stat(filePath)
 	if err != nil {
-		return fmt.Errorf("unable to open tepmorary file %s: %w", tmpPath, err)
+		return fmt.Errorf("stat %s: %w", filePath, err)
+	}
+
+	dir := filepath.Dir(filePath)
+
+	tmp, err := os.CreateTemp(dir, filepath.Base(filePath)+".tmp.*")
+	if err != nil {
+		return fmt.Errorf("unable to open temporary file: %w", err)
 	}
 
 	// Cleanup
 	defer func() {
 		tmp.Close()
-		os.Remove(tmpPath)
+		os.Remove(tmp.Name())
 	}()
 
 	for _, chunk := range chunks {
 		if _, err := tmp.WriteString(chunk); err != nil {
 			return fmt.Errorf("write temp string: %w", err)
 		}
+	}
+
+	if err := tmp.Chmod(fi.Mode()); err != nil {
+		return fmt.Errorf("chmod temp file: %w", err)
 	}
 
 	if err := tmp.Close(); err != nil {
