@@ -294,6 +294,12 @@ func GetTOC(file string, opts Options) (string, error) {
 		return "", fmt.Errorf("unable to read %s: %w", file, err)
 	}
 
+	return GetTOCFromBytes(doc, opts)
+}
+
+// GetTOCFromBytes generates the TOC from raw markdown bytes with options.
+// Returns the generated toc, and any error.
+func GetTOCFromBytes(doc []byte, opts Options) (string, error) {
 	start, end := findTOCTags(doc)
 	startPos := 0
 

@@ -32,19 +32,38 @@ TOC indentation is normalized, so the shallowest header has indentation 0.
 
 **Options:**
 
-`--dryrun` - Whether to check for changes to TOC, rather than overwriting.
+`--dryrun` / `-d` - Whether to check for changes to TOC, rather than overwriting.
 Requires `--inplace` flag. Exit code 1 if there are changes.
 
-`--inplace` - Whether to edit the file in-place, or output to STDOUT. Requires
+`--inplace` / `-i` - Whether to edit the file in-place, or output to STDOUT. Requires
 toc tags to be present.
 
-`--skip-prefix` - Whether to ignore any headers before the opening toc
+`--skip-prefix` / `-s` - Whether to ignore any headers before the opening toc
 tag. (default true)
 
-`--max-depth` - Limit the depth of headers that will be included in the
+`--max-depth` / `-m` - Limit the depth of headers that will be included in the
 TOC. (default 6)
 
-`--version` - Show MDTOC version.
+`--output` / `-o` - Write the TOC to the specified file instead of STDOUT.
+
+`--version` / `-v` - Show MDTOC version.
+
+**Stdin support:**
+
+Use `-` as the file argument to read markdown from stdin:
+
+```sh
+cat README.md | mdtoc -
+```
+
+**Glob patterns:**
+
+File arguments are expanded as glob patterns, which is useful on systems
+that do not perform shell expansion (e.g., Windows):
+
+```sh
+mdtoc -i "docs/*.md"
+```
 
 For example, with `--skip-prefix=false` the TOC for this file becomes:
 
