@@ -41,6 +41,11 @@ toc tags to be present.
 `--skip-prefix` - Whether to ignore any headers before the opening toc
 tag. (default true)
 
+`--max-depth` - Limit the depth of headers that will be included in the
+TOC. (default 6)
+
+`--version` - Show MDTOC version.
+
 For example, with `--skip-prefix=false` the TOC for this file becomes:
 
 ```
