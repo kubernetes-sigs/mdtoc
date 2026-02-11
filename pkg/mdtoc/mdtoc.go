@@ -28,7 +28,6 @@ import (
 	"github.com/gomarkdown/markdown/ast"
 	"github.com/gomarkdown/markdown/html"
 	"github.com/gomarkdown/markdown/parser"
-	"github.com/mmarkdown/mmark/mparser"
 )
 
 const (
@@ -53,13 +52,36 @@ type Options struct {
 	MaxDepth   int
 }
 
+// stripFrontMatter removes YAML front matter (delimited by ---) from the
+// beginning of a markdown document. This replaces the mmark mparser.Hook
+// dependency that was previously used to handle title blocks.
+func stripFrontMatter(b []byte) []byte {
+	// Check for opening ---
+	if !bytes.HasPrefix(b, []byte("---\n")) && !bytes.HasPrefix(b, []byte("---\r\n")) {
+		return b
+	}
+
+	// Find the closing ---
+	end := bytes.Index(b[3:], []byte("\n---"))
+	if end == -1 {
+		return b
+	}
+
+	// Skip past the closing --- and its trailing newline
+	rest := b[3+end+4:]
+	if len(rest) > 0 && rest[0] == '\n' {
+		rest = rest[1:]
+	} else if len(rest) > 1 && rest[0] == '\r' && rest[1] == '\n' {
+		rest = rest[2:]
+	}
+
+	return rest
+}
+
 // parse parses a raw markdown document to an AST.
 func parse(b []byte) ast.Node {
+	b = stripFrontMatter(b)
 	p := parser.NewWithExtensions(parser.CommonExtensions)
-	p.Opts = parser.Options{
-		// mparser is required for parsing the --- title blocks
-		ParserHook: mparser.Hook,
-	}
 
 	return p.Parse(b)
 }
