@@ -26,7 +26,7 @@ jobs:
         run: make verify
 
       - name: Install bom
-        uses: kubernetes-sigs/release-actions/setup-bom@ab33480f30919958240822cfc29af8d9903f313b # v0.4.1
+        uses: kubernetes-sigs/release-actions/setup-bom@8753ea6bdadb814d779c6ec34eaca689dbfb492b # v0.4.3
 
       - name: Install GoReleaser
         uses: goreleaser/goreleaser-action@ec59f474b9834571250b370d4735c50f8e2d1e29 # v7.0.0
