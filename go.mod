@@ -6,7 +6,7 @@ require (
 	github.com/gomarkdown/markdown v0.0.0-20250810172220-2e2c11897d1a
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.11.1
-	sigs.k8s.io/release-utils v0.12.3
+	sigs.k8s.io/release-utils v0.12.4
 )
 
 require (
