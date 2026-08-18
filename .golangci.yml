@@ -11,6 +11,7 @@ linters:
     - bidichk
     - bodyclose
     - canonicalheader
+    - clickhouselint
     - containedctx
     - contextcheck
     - copyloopvar
@@ -21,7 +22,6 @@ linters:
     - dupword
     - durationcheck
     - embeddedstructfieldcheck
-    - forbidigo
     - errcheck
     - errchkjson
     - errname
@@ -29,6 +29,7 @@ linters:
     - exhaustive
     - exptostd
     - fatcontext
+    - forbidigo
     - forcetypeassert
     - funcorder
     - funlen
@@ -45,7 +46,7 @@ linters:
     - godox
     - goheader
     - gomoddirectives
-    - gomodguard
+    - gomodguard_v2
     - goprintffuncname
     - gosec
     - gosmopolitan
@@ -74,8 +75,8 @@ linters:
     - nilnil
     - nlreturn
     - noctx
-    - nonamedreturns
     - nolintlint
+    - nonamedreturns
     - nosprintfhostport
     - paralleltest
     - perfsprint
@@ -145,6 +146,8 @@ formatters:
     - gofmt
     - gofumpt
     - goimports
+    - golines
+    - swaggo
   settings:
     gci:
       sections:
