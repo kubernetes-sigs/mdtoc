@@ -72,21 +72,29 @@ func stripFrontMatter(b []byte) []byte {
 		return b
 	}
 
-	// Find the closing ---
-	end := bytes.Index(b[3:], []byte("\n---"))
-	if end == -1 {
-		return b
-	}
+	// Find the closing --- on its own line
+	search := b[3:]
+	for {
+		idx := bytes.Index(search, []byte("\n---"))
+		if idx == -1 {
+			return b
+		}
 
-	// Skip past the closing --- and its trailing newline
-	rest := b[3+end+4:]
-	if len(rest) > 0 && rest[0] == '\n' {
-		rest = rest[1:]
-	} else if len(rest) > 1 && rest[0] == '\r' && rest[1] == '\n' {
-		rest = rest[2:]
-	}
+		after := search[idx+4:]
+		if len(after) == 0 || after[0] == '\n' ||
+			(after[0] == '\r' && len(after) > 1 && after[1] == '\n') {
+			rest := after
+			if len(rest) > 0 && rest[0] == '\n' {
+				rest = rest[1:]
+			} else if len(rest) > 1 && rest[0] == '\r' && rest[1] == '\n' {
+				rest = rest[2:]
+			}
 
-	return rest
+			return rest
+		}
+
+		search = search[idx+4:]
+	}
 }
 
 // parse parses a raw markdown document to an AST.
@@ -137,7 +145,7 @@ func GenerateTOC(doc []byte, opts Options) (string, error) {
 type headingFn func(heading *ast.Heading)
 
 // walkHeadings runs the heading function on each heading in the parsed markdown document.
-func walkHeadings(doc ast.Node, headingFn headingFn) {
+func walkHeadings(doc ast.Node, fn headingFn) {
 	ast.WalkFunc(doc, func(node ast.Node, entering bool) ast.WalkStatus {
 		if !entering {
 			return ast.GoToNext // Don't care about closing the heading section.
@@ -152,7 +160,7 @@ func walkHeadings(doc ast.Node, headingFn headingFn) {
 			return ast.GoToNext // Ignore title blocks (the --- section)
 		}
 
-		headingFn(heading)
+		fn(heading)
 
 		return ast.GoToNext
 	})
@@ -240,6 +248,17 @@ func headingBase(doc ast.Node) int {
 // Match punctuation that is filtered out from anchor IDs.
 var punctuation = regexp.MustCompile(`[^\w\- ]`)
 
+// applySkipPrefix returns the document slice to use for TOC generation,
+// skipping content before the end tag when SkipPrefix is set and both
+// TOC tags are present.
+func applySkipPrefix(doc []byte, opts Options, start, end int) []byte {
+	if opts.SkipPrefix && start != -1 && end != -1 {
+		return doc[end:]
+	}
+
+	return doc
+}
+
 // WriteTOC generates a table of contents and writes it into the file between
 // the StartTOC and EndTOC tags. The file must contain both tags. If the
 // generated TOC matches the existing content, the file is not modified. When
@@ -265,13 +284,7 @@ func WriteTOC(file string, opts Options) error {
 		return errors.New("TOC closing tag before start tag")
 	}
 
-	// skipPrefix is only used when toc tags are present.
-	doc := raw
-	if opts.SkipPrefix {
-		doc = raw[end:]
-	}
-
-	toc, err := GenerateTOC(doc, opts)
+	toc, err := GenerateTOC(applySkipPrefix(raw, opts, start, end), opts)
 	if err != nil {
 		return fmt.Errorf("failed to generate toc: %w", err)
 	}
@@ -280,19 +293,16 @@ func WriteTOC(file string, opts Options) error {
 
 	oldTOC := string(raw[realStart:end])
 	if strings.TrimSpace(oldTOC) == strings.TrimSpace(toc) {
-		// No changes required.
 		return nil
 	} else if opts.Dryrun {
 		return fmt.Errorf("changes found:\n%s", toc)
 	}
 
-	err = atomicWrite(file,
+	return atomicWrite(file,
 		string(raw[:realStart])+"\n",
 		toc,
 		string(raw[end:]),
 	)
-
-	return err
 }
 
 // GetTOC reads a markdown file and returns the generated table of contents as a
@@ -307,22 +317,10 @@ func GetTOC(file string, opts Options) (string, error) {
 }
 
 // GetTOCFromBytes generates the TOC from raw markdown bytes with options.
-// Returns the generated toc, and any error.
 func GetTOCFromBytes(doc []byte, opts Options) (string, error) {
 	start, end := findTOCTags(doc)
-	startPos := 0
 
-	// skipPrefix is only used when toc tags are present.
-	if opts.SkipPrefix && start != -1 && end != -1 {
-		startPos = end
-	}
-
-	toc, err := GenerateTOC(doc[startPos:], opts)
-	if err != nil {
-		return toc, fmt.Errorf("failed to generate toc: %w", err)
-	}
-
-	return toc, err
+	return GenerateTOC(applySkipPrefix(doc, opts, start, end), opts)
 }
 
 // atomicWrite writes the chunks sequentially to the filePath.
