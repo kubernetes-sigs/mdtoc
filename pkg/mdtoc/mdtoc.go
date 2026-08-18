@@ -122,7 +122,13 @@ func GenerateTOC(doc []byte, opts Options) (string, error) {
 
 		anchor := anchors.mkAnchor(asText(heading))
 		content := headingBody(htmlRenderer, heading)
-		fmt.Fprintf(toc, "%s- [%s](#%s)\n", strings.Repeat("  ", heading.Level-baseLvl), content, anchor)
+		fmt.Fprintf(
+			toc,
+			"%s- [%s](#%s)\n",
+			strings.Repeat("  ", heading.Level-baseLvl),
+			content,
+			anchor,
+		)
 	})
 
 	return toc.String(), nil

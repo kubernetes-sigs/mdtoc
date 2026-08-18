@@ -50,12 +50,18 @@ type utilityOptions struct {
 var defaultOptions utilityOptions
 
 func initFlags() {
-	cmd.PersistentFlags().BoolVarP(&defaultOptions.Dryrun, "dryrun", "d", false, "Whether to check for changes to TOC, rather than overwriting. Requires --inplace flag.")
-	cmd.PersistentFlags().BoolVarP(&defaultOptions.Inplace, "inplace", "i", false, "Whether to edit the file in-place, or output to STDOUT. Requires toc tags to be present.")
-	cmd.PersistentFlags().BoolVarP(&defaultOptions.SkipPrefix, "skip-prefix", "s", true, "Whether to ignore any headers before the opening toc tag.")
-	cmd.PersistentFlags().IntVarP(&defaultOptions.MaxDepth, "max-depth", "m", mdtoc.MaxHeaderDepth, "Limit the depth of headers that will be included in the TOC.")
-	cmd.PersistentFlags().BoolVarP(&defaultOptions.Version, "version", "v", false, "Show MDTOC version.")
-	cmd.PersistentFlags().StringVarP(&defaultOptions.Output, "output", "o", "", "Write the TOC to the specified file instead of STDOUT.")
+	cmd.PersistentFlags().
+		BoolVarP(&defaultOptions.Dryrun, "dryrun", "d", false, "Whether to check for changes to TOC, rather than overwriting. Requires --inplace flag.")
+	cmd.PersistentFlags().
+		BoolVarP(&defaultOptions.Inplace, "inplace", "i", false, "Whether to edit the file in-place, or output to STDOUT. Requires toc tags to be present.")
+	cmd.PersistentFlags().
+		BoolVarP(&defaultOptions.SkipPrefix, "skip-prefix", "s", true, "Whether to ignore any headers before the opening toc tag.")
+	cmd.PersistentFlags().
+		IntVarP(&defaultOptions.MaxDepth, "max-depth", "m", mdtoc.MaxHeaderDepth, "Limit the depth of headers that will be included in the TOC.")
+	cmd.PersistentFlags().
+		BoolVarP(&defaultOptions.Version, "version", "v", false, "Show MDTOC version.")
+	cmd.PersistentFlags().
+		StringVarP(&defaultOptions.Output, "output", "o", "", "Write the TOC to the specified file instead of STDOUT.")
 }
 
 func main() {
