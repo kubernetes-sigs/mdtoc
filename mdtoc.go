@@ -25,15 +25,9 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/cobra"
+	"sigs.k8s.io/release-utils/version"
 
 	"sigs.k8s.io/mdtoc/pkg/mdtoc"
-)
-
-var (
-	gitVersion   = "devel"
-	gitCommit    = "unknown"
-	gitTreeState = "unknown"
-	buildDate    = "unknown"
 )
 
 var cmd = &cobra.Command{
@@ -108,11 +102,12 @@ func expandGlobs(args []string) ([]string, error) {
 
 func run(_ *cobra.Command, args []string) error {
 	if defaultOptions.Version {
-		fmt.Fprintf(
-			os.Stdout,
-			"mdtoc %s\n  commit: %s\n  tree state: %s\n  build date: %s\n",
-			gitVersion, gitCommit, gitTreeState, buildDate,
-		)
+		v := version.GetVersionInfo()
+		v.Name = "mdtoc"
+		v.Description = "is a utility for generating a table-of-contents for markdown files"
+		v.ASCIIName = "true"
+		v.FontName = "banner"
+		fmt.Fprintln(os.Stdout, v.String())
 
 		return nil
 	}
