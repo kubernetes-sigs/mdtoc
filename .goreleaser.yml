@@ -1,8 +1,9 @@
+version: 2
+
 project_name: mdtoc
 
 env:
   - CGO_ENABLED=0
-  - COSIGN_YES=true
 
 before:
   hooks:
@@ -35,40 +36,27 @@ builds:
       - "{{ .Env.LDFLAGS }}"
 
 archives:
-  - format: binary
+  - formats:
+      - binary
     name_template: "{{ .Binary }}"
     allow_different_binary_count: true
 
 signs:
-  # Keyless
   - id: mdtoc-keyless
     signature: "${artifact}.sigstore.json"
     cmd: cosign
     args:
-      - "sign-blob"
-      - "--bundle=${signature}"
-      - "${artifact}"
+      - sign-blob
+      - --bundle=${signature}
+      - --yes
+      - ${artifact}
     artifacts: all
 
 sboms:
-  - id: mdtoc
-    cmd: bom
-    args:
-      - generate
-      - "--output"
-      - "mdtoc-bom.json.spdx"
-      - "-d"
-      - "../"
-      - "-c"
-      - "../.mdtoc-bom-config.yaml"
-      - "--format"
-      - "json"
-    artifacts: any
-    documents:
-      - "mdtoc-bom.json.spdx"
+  - artifacts: binary
 
 checksum:
-  name_template: 'checksums.txt'
+  name_template: checksums.txt
 
 snapshot:
   version_template: "{{ .Tag }}-next"
@@ -80,4 +68,4 @@ release:
   prerelease: auto
 
 changelog:
-  disable: true
+  use: github-native
