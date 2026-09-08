@@ -95,7 +95,7 @@ goreleaser: ## Build mdtoc binaries with goreleaser
 .PHONY: snapshot
 snapshot: ## Build mdtoc binaries with goreleaser in snapshot mode
 	LDFLAGS="$(LDFLAGS)" GIT_HASH=$(GIT_HASH) GIT_VERSION=$(GIT_VERSION) \
-	goreleaser release --clean --snapshot --skip=sign,publish
+	goreleaser release --clean --snapshot --skip=sign,publish,sbom
 
 ##@ Helpers
 
